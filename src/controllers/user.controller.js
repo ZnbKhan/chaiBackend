@@ -223,16 +223,19 @@ const refreshAccessToken = asyncHandler( async(req,res)=>{
 //    ab nya generate kr lenge nya db mai savr krenge ar cookies mai save kr denge
 
     const incomingToken =  req.cookies.refreshToken || req.body.refreshToken
+    console.log("incoming token: ", incomingToken)
 
     if(!incomingToken){
        throw new ApiError(401, "unauthorized request")
     }
 
     try {
-        const decodedTokem = jwt.verify(incomingToken, process.env.REFRESH_TOKEM_SECRET)
-    
-       const user =  User.findById(decodedTokem._id);
-    
+        const decodedToken = jwt.verify(incomingToken, process.env.REFRESH_TOKEM_SECRET)
+        console.log("decodedToken: ", decodedToken)     
+
+       const user =  User.findById(decodedToken._id);
+       console.log("user fron refreshTokenController: ", user)
+
        if(!user){
          throw new ApiError(401, "Invalid refresh token")
        }
@@ -242,7 +245,9 @@ const refreshAccessToken = asyncHandler( async(req,res)=>{
        }
     
        const {newRefreshToken, accessToken} = await generateAcessAndRefreshToken(user._id)
-    
+        console.log("newRefreshToken from refreshAcessTokenController: ", newRefreshToken);
+        console.log("acessToken from refreshTokenAcessController: ", accessToken) 
+
        const options={
         httpOnly:true,
         secure:true,
@@ -250,8 +255,8 @@ const refreshAccessToken = asyncHandler( async(req,res)=>{
     
        return res
        .status(200)
-       .cookie("accessToken", accessToken)
-       .cookie("refreshToken", newRefreshToken)
+       .cookie("accessToken", accessToken, options)
+       .cookie("refreshToken", newRefreshToken, options)
        .json(
           new ApiResponse(
             200,
