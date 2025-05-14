@@ -60,8 +60,11 @@ const publishVideo = asyncHandler(async (req, res) => {
 })
 
 const getVideoById = asyncHandler(async (req, res) => {
-    const { videoId } = req.params
+    const { videoId } = req.params //how videoId comes in params -- headache of frontend dev
     //TODO: get video by id
+    const video =  await Video.findById(videoId);
+    // console.log(video)
+    return res.status(200).json(new ApiResponse(200, video, "fetched video sucessfully"))
 })
 
 const updateVideo = asyncHandler(async (req, res) => {
