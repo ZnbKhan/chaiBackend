@@ -274,4 +274,44 @@ const refreshAccessToken = asyncHandler( async(req,res)=>{
 
 } )
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken}
+
+const changeCurrentPassword = asyncHandler( async(req,res)=>{
+
+    // old password and newpassword
+    // sbse phle user cahhaiye hoga jiska password change krna
+    // email ya usrername mang skte hai
+    // db query on the basis of that
+    // oldPassword match with db password
+    // agr match ho gya toh toh upadate new password
+    const {oldPassword, newPassword, email} = req.body;
+
+    console.log("req.body: ", req.body);
+
+    if(!email){
+        throw new ApiError(401, "provide email")
+    }
+
+    const user = await User.findOne({email})
+    console.log("user: ", user)
+
+
+    const matchedPassword = await user.isPasswordCorrect(oldPassword, user.password)
+    console.log("matchedPassows: ", matchedPassword)
+
+    if(!matchedPassword){
+        throw new ApiError(401, "provide correct oldPassword")
+    }
+
+    user.password = newPassword
+
+    await user.save()
+    console.log("user after saving password: ", user)
+
+    return res.status(201).json(
+        new ApiResponse(
+            200, user,  "Password Updated Sucessfully") )
+
+
+})
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword}
