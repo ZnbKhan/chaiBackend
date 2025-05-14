@@ -306,4 +306,14 @@ const changeCurrentPassword = asyncHandler( async(req,res)=>{
     return res.status(201).json(new ApiResponse(200, {},  "Password Updated Sucessfully") )
 })
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword}
+const getCurrentUser = asyncHandler( async(req,res)=>{
+    // user logedin hai toh req.user._id se user ki info 
+    // send kr do
+
+    const user = await User.findById(req.user._id).select("-password -refreshToken")
+
+
+    return res.status(200).json(new ApiResponse(200, user, "Sucessfully fetched user"))
+})
+
+export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser}
