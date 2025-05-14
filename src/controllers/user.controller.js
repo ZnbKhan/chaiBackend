@@ -312,8 +312,32 @@ const getCurrentUser = asyncHandler( async(req,res)=>{
 
     const user = await User.findById(req.user._id).select("-password -refreshToken")
 
-
-    return res.status(200).json(new ApiResponse(200, user, "Sucessfully fetched user"))
+    return res.status(200).json(new ApiResponse(200, user, "Sucessfully fetched current user"))
 })
 
-export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword, getCurrentUser}
+const updateUser = asyncHandler( async(req,res)=>{
+    // verifyJwt se mujhe user ka id mil jayega
+    // db query krk user find kr longi
+    // req.body se jo liya hai us sey update kr dongi
+      const {email} = req.body;
+
+      const user = await User.findById(req.user._id)
+
+      user.email = email;
+
+      await user.save();
+
+      res.status(201).json(new ApiResponse(200, user, "Profile updated successfully"))
+
+
+} )
+
+
+export {
+     registerUser, 
+    loginUser, 
+    logoutUser, 
+    refreshAccessToken, 
+    changeCurrentPassword, 
+    getCurrentUser,
+    updateUser}
