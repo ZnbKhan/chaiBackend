@@ -321,10 +321,10 @@ const updateAccountDetails = asyncHandler( async(req,res)=>{
     // db query krk user find kr longi
     // req.body se jo liya hai us sey update kr dongi
       const {email, fullname} = req.body;
-      console.log("req.body: ", req.body)
+    //   console.log("req.body: ", req.body)
 
       const user = await User.findById(req.user._id)
-      console.log("user before save in db: ", user)
+    //   console.log("user before save in db: ", user)
       
       if(user.email === email){
          throw new ApiError(401, "Provide new email")
@@ -338,9 +338,47 @@ const updateAccountDetails = asyncHandler( async(req,res)=>{
       user.fullname = fullname
 
       await user.save({validateBeforeSave:true});
-      console.log("user after save in db: ", user)
+    //   console.log("user after save in db: ", user)
 
       res.status(201).json(new ApiResponse(200, {}, "Profile updated successfully"))
+
+
+} )
+
+const updateUserAvatar = asyncHandler( async(req,res)=>{
+    // 2 middleware lgega verifyJwt ar multer
+    // req.file milega multer se -- multiple file then req.files nhi toh req.file ar router mai bhi upload.single lo
+    // local path lenge ar cloudinary ko de dnege
+    // user save kr denge 
+
+    const avatarLocalPath =  req.file?.path;
+    // console.log("avatar Local Path: ", avatarLocalPath)
+    if(!avatarLocalPath){
+        throw new ApiError(400, "Avatar file is missing");
+    }
+
+    const avatar =  await uploadCloudinary(avatarLocalPath)
+    // console.log("avatart upload on cloudinary", avatar.url)
+
+    if(!avatar.url){
+        throw new ApiError(400, "Error while uploading avatar ");
+    }
+
+     const user = await User.findByIdAndUpdate(req.user?._id,
+        {
+           $set:{
+            avatar:avatar.url
+           }
+        },
+       {
+        new:true
+       },).select("-password")
+
+     await user.save({validateBeforeSave:true})
+
+     
+
+     res.status(201).json(new ApiResponse(200, {}, "avatar updated successfully"))
 
 
 } )
@@ -353,4 +391,5 @@ export {
     refreshAccessToken, 
     changeCurrentPassword, 
     getCurrentUser,
-    updateAccountDetails}
+    updateAccountDetails,
+    updateUserAvatar}
