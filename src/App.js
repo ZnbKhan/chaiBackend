@@ -18,10 +18,11 @@ app.use(cookieParser()) // server se user ka brwoser acess kr pau ar set kr pau 
 
 // routes import
 import userRouter from './routes/user.routes.js'
-
+import videoRouter from './routes/video.routes.js'
 
 // routes declaration
 app.use("/api/v1/users", userRouter);
+app.use("/api/v1/users/video", videoRouter)
 
 // http://localhost/api/v1/users/register
 export {app};
