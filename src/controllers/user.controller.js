@@ -283,35 +283,27 @@ const changeCurrentPassword = asyncHandler( async(req,res)=>{
     // db query on the basis of that
     // oldPassword match with db password
     // agr match ho gya toh toh upadate new password
-    const {oldPassword, newPassword, email} = req.body;
+    // const {oldPassword, newPassword, email} = req.body; //email ki zrorat nhi hai agr user user loggedin hai toh verifyjwt se le lenge id
 
-    console.log("req.body: ", req.body);
+    const {oldPassword, newPassword} = req.body;
 
-    if(!email){
-        throw new ApiError(401, "provide email")
-    }
+    const user = await User.findById(req.user._id)
 
-    const user = await User.findOne({email})
-    console.log("user: ", user)
+    // console.log("user: ", user);
 
+    const isPasswordCorrect = await user.isPasswordCorrect(oldPassword)
+    // console.log("isPasswordCorrect : ", isPasswordCorrect)
 
-    const matchedPassword = await user.isPasswordCorrect(oldPassword, user.password)
-    console.log("matchedPassows: ", matchedPassword)
-
-    if(!matchedPassword){
-        throw new ApiError(401, "provide correct oldPassword")
+    if(!isPasswordCorrect){
+        throw new ApiError(401, "Invlaid old Password")
     }
 
     user.password = newPassword
 
-    await user.save()
-    console.log("user after saving password: ", user)
+    await user.save({validateBeforeSave:true})
+    // console.log("user after saving password: ", user)
 
-    return res.status(201).json(
-        new ApiResponse(
-            200, user,  "Password Updated Sucessfully") )
-
-
+    return res.status(201).json(new ApiResponse(200, {},  "Password Updated Sucessfully") )
 })
 
 export { registerUser, loginUser, logoutUser, refreshAccessToken, changeCurrentPassword}
