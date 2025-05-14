@@ -315,19 +315,32 @@ const getCurrentUser = asyncHandler( async(req,res)=>{
     return res.status(200).json(new ApiResponse(200, user, "Sucessfully fetched current user"))
 })
 
-const updateUser = asyncHandler( async(req,res)=>{
+const updateAccountDetails = asyncHandler( async(req,res)=>{
+    // production advice files update k liye alg end point
     // verifyJwt se mujhe user ka id mil jayega
     // db query krk user find kr longi
     // req.body se jo liya hai us sey update kr dongi
-      const {email} = req.body;
+      const {email, fullname} = req.body;
+      console.log("req.body: ", req.body)
 
       const user = await User.findById(req.user._id)
+      console.log("user before save in db: ", user)
+      
+      if(user.email === email){
+         throw new ApiError(401, "Provide new email")
+      }
+
+      if(user.fullname === fullname){
+         throw new ApiError(401, "Provide new fullname ")
+      }
 
       user.email = email;
+      user.fullname = fullname
 
-      await user.save();
+      await user.save({validateBeforeSave:true});
+      console.log("user after save in db: ", user)
 
-      res.status(201).json(new ApiResponse(200, user, "Profile updated successfully"))
+      res.status(201).json(new ApiResponse(200, {}, "Profile updated successfully"))
 
 
 } )
@@ -340,4 +353,4 @@ export {
     refreshAccessToken, 
     changeCurrentPassword, 
     getCurrentUser,
-    updateUser}
+    updateAccountDetails}
