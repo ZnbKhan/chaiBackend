@@ -28,21 +28,34 @@ const publishVideo = asyncHandler(async (req, res) => {
         if(!title.trim() || !description.trim()){
             throw new ApiError(400, "Provide video title and desctiption")
         }
+
+        // console.log("req.files: ", req.files?.videoFile?.[0]?.path)  //check routes
         
-        const localVideoPath = req.file?.path;
-        // console.log("local Video Path: ", localVideoPath)
-    
+        const localVideoPath = req.files?.videoFile?.[0]?.path;
+        console.log("local Video Path: ", localVideoPath)
+
         const uploadedVideo = await uploadCloudinary(localVideoPath)
-        // console.log("uploaded Video: ", uploadedVideo)
-    
+        console.log("uploaded Video: ", uploadedVideo.url)
+
         if(!uploadedVideo){
             throw new ApiError(400, "Video is required")
         }
-    
+        
+        const localThumbnailLocalPath = req.files?.thumbnail?.[0].path
+        console.log("localThumbnailPath: ", localThumbnailLocalPath)
+
+        const uploadedThumbnail = await uploadCloudinary(localThumbnailLocalPath);
+        console.log("uploadedThumbnail: ", uploadedThumbnail.url)
+        
+        if(!uploadedThumbnail){
+            throw new ApiError(400, "Thumnail is required")
+        }
+
         const video =  await Video.create({
             title,
             description,
             videoFile:uploadedVideo.url,
+            thumbnail:uploadedThumbnail.url,
             duration:uploadedVideo?.duration,
             owner:req.user?._id
         })
