@@ -46,7 +46,7 @@ const publishVideo = asyncHandler(async (req, res) => {
 
         const uploadedThumbnail = await uploadCloudinary(localThumbnailLocalPath);
         console.log("uploadedThumbnail: ", uploadedThumbnail.url)
-        
+
         if(!uploadedThumbnail){
             throw new ApiError(400, "Thumnail is required")
         }
@@ -76,6 +76,9 @@ const getVideoById = asyncHandler(async (req, res) => {
     const { videoId } = req.params //how videoId comes in params -- headache of frontend dev
     //TODO: get video by id
     const video =  await Video.findById(videoId);
+    if(!video){
+        throw new ApiError(500, "video does not exist")
+    }
     // console.log(video)
     return res.status(200).json(new ApiResponse(200, video, "fetched video sucessfully"))
 })
