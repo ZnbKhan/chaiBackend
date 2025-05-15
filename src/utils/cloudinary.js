@@ -1,5 +1,6 @@
 import {v2 as cloudinary} from 'cloudinary';
 import fs from 'fs';
+import { ApiError } from './ApiErrors.js';
 
 cloudinary.config({ 
   cloud_name:process.env.CLOUDINARY_CLOUD_NAME , 
@@ -28,4 +29,27 @@ const uploadCloudinary = async(localFilePath)=>{
      }
 }
 
-export {uploadCloudinary}
+const delteteFromClodinary = async(url, resourceType)=>{
+    try {
+        const extractedUrl = url.match(/\/upload\/(?:v\d+\/)?(.+)\.[a-zA-Z0-9]+$/);
+        // console.log("Extracted Public URL: ", extractedUrl)
+
+        if(!extractedUrl){
+          throw new ApiError(400, "unauthorized url");
+        }
+        const publicId = extractedUrl?.[1];
+        // console.log("public :", publicId)
+
+        await cloudinary.uploader.destroy(publicId,{
+          resource_type:resourceType
+        });
+        
+        console.log("Deleted from cloudinary successfully")
+    } catch (error) {
+      throw new ApiError(500, error?.message || "Error delteing from cloudinary")
+    }
+}
+
+
+
+export {uploadCloudinary, delteteFromClodinary}
