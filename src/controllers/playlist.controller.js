@@ -61,10 +61,10 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
             throw new ApiError(400, "Playlist not found")
         }
 
-        res.status(200).send(new ApiResponse(200, playlist, "Plyalist fetched sucessfully"))
+       return res.status(200).send(new ApiResponse(200, playlist, "Plyalist fetched sucessfully"))
     
     } catch (error) {
-        res.status(500).send(new ApiError(500, "Error in playlist API"))
+       return res.status(500).send(new ApiError(500, "Error in playlist API"))
     
 }    
 
@@ -73,8 +73,21 @@ const getUserPlaylists = asyncHandler(async (req, res) => {
 })
 
 const getPlaylistById = asyncHandler(async (req, res) => {
-    const {playlistId} = req.params
     //TODO: get playlist by id
+    // now I am providing the playlist id need to have that playlist
+    const {playlistId} = req.params
+    if(!playlistId){
+        throw new ApiError(400,"playlist is not found with this id")
+
+    }
+
+    const playList = await Playlist.findById(playlistId)
+
+    if(!playList){
+        throw new ApiError(400, "Playlist not found")
+    }
+
+    return res.status(200).send(new ApiResponse(200, playList, "Plyalist fetched sucessfully"))
 })
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
