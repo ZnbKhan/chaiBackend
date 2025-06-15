@@ -20,11 +20,13 @@ app.use(cookieParser()) // server se user ka brwoser acess kr pau ar set kr pau 
 import userRouter from './routes/user.routes.js'
 import videoRouter from './routes/video.routes.js'
 import playlistRouter from './routes/playlist.routes.js'
+import tweetRouter from './routes/tweet.route.js'
 
 // routes declaration
 app.use("/api/v1/users", userRouter);
 app.use("/api/v1/users/video", videoRouter)
 app.use("/api/v1/user/playlist", playlistRouter)
+app.use("/api/v1/user/tweet", tweetRouter)
 
 // http://localhost/api/v1/users/register
 export {app};

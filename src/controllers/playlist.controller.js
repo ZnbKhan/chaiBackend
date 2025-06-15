@@ -15,19 +15,6 @@ const createPlaylist = asyncHandler(async (req, res) => {
         throw new ApiError(400, "Please Provide name and description of playlist")
     }
 
-    // const user = await User.findById(req.user._id).select("-password -refreshToken -avatar -coverImage")
-    // if(!user){
-    //     throw new ApiError(400, "User is unauthorized")
-    // }
-    
-    // // console.log(user._id)
-    // const video = await Video.findOne(user._id.owner)
-    // console.log("video: ", video)
-
-    // if(video.title != title ){
-    //     throw new ApiError
-    // }
-    
     const playlist = await Playlist.create({
         name,
         description,
@@ -91,12 +78,37 @@ const getPlaylistById = asyncHandler(async (req, res) => {
 })
 
 const addVideoToPlaylist = asyncHandler(async (req, res) => {
+    // my use case is loggedin user hai usne apna video uthaya and apne playlist mai dala
+    // have playlistId and VideoId
+    // take videoId and put in playlist
     const {playlistId, videoId} = req.params
+
+    if(!playlistId && !videoId){
+        throw new ApiError(400, "playlistId and videoId is missing")
+    }
+
+    const video = await Video.findById(videoId)
+    console.log("video: ", video)
+    if(!video){
+        throw new ApiError(404, "video not found")
+    }
+
+    const playlist = await Playlist.findById(playlistId);
+    if(!playlist){
+        throw new ApiError(404, "playlist is not found")
+    }
+
+    const addedVideo =  await Playlist.updateOne(video)
+
+
+
+
 })
 
 const removeVideoFromPlaylist = asyncHandler(async (req, res) => {
     const {playlistId, videoId} = req.params
     // TODO: remove video from playlist
+    
 
 })
 
