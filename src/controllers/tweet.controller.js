@@ -10,10 +10,9 @@ const createTweet = asyncHandler(async (req, res) => {
     // content from req.body
     // already user login hai then cokkie se user info then save in db
 
-    try {
         const {content}  = req.body;
         if(!content){
-            throw new ApiError(400, "write a tweet please before posting")
+            throw new ApiError(400, "write a tweet before posting")
         }
     
         const userId = req.user._id;
@@ -22,22 +21,39 @@ const createTweet = asyncHandler(async (req, res) => {
         }
     
          const user = await User.findById(userId);
+        //  console.log(user)
     
          const tweet = await Tweet.create({
             content,
-            user
+            owner: user._id
          })
     
          return res.status(200).json(new ApiResponse(200, tweet, "Tweet is created sucesfully"))
     
-    } catch (error) {
-       return res.status(500).json(new ApiResponse(500, "Server Error while creating tweet"))
-        
-    }
+    
 })
 
 const getUserTweets = asyncHandler(async (req, res) => {
     // TODO: get user tweets
+    // have user info via req.user._id
+    // display all the tweets
+
+    const userId = req.user._id;
+    if(!userId){
+        throw new ApiError(400, "User is not login login first")
+    }
+
+
+     const user = await User.findById(userId);
+
+     if(!user){
+        throw new ApiError(400, "User not found")
+     }
+
+     const tweets = await Tweet.find({owner:userId}).select("-owner -_id")
+
+     return res.status(200).json(new ApiResponse(200, tweets, "Fetched Tweets Sucessfully"));
+
 })
 
 const updateTweet = asyncHandler(async (req, res) => {
